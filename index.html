@@ -1,0 +1,184 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Weather Application</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="resources/css/styles.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> 
+<script src="resources/raphael.js"></script>
+<script src="resources/jquery.usmap.js"></script>
+<style>
+.tooltip1 {
+    text-decoration:none;
+    position:relative;
+}
+.tooltip1 span {
+    display:none;
+    position:fixed;
+    overflow:hidden;
+    width:40px;
+    height:20px;
+	font-size: 15px;
+    background:#e8e682;
+}
+</style>
+</head>
+<body>
+<div class="bod">
+<h1>Weather API demonstration</h1>
+<p>Click on a state to get the weather information of that state</p><br>
+</div>
+
+<div class="hea">
+<div id="map" style="width: 600px; height: 400px;"></div>
+ 
+ 
+<button type="button" id="modalBtn" style="display:none" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Modal</button>
+<div class="modal fade" id="myModal" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title" id="stateTitle"></h4>
+			</div>
+			<div class="modal-body">
+				<h4 style="text-align: center" id="weatherReport"></h4>
+				<h4 style="text-align: center" id="weatherReportfore"></h4>
+				<h4 style="text-align: center" id="weatherReporthumidity"></h4>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+<div class="tooltip1">
+    <span id="tooltip-span">
+        StateName
+    </span>
+</div>
+</div>
+
+<script>
+
+var tooltipSpan = document.getElementById('tooltip-span');
+
+var showState=function (e,state) {
+    var x = e.clientX,
+        y = e.clientY;
+    tooltipSpan.innerHTML=state;
+    tooltipSpan.style.display="block";
+    tooltipSpan.style.top = (y + 14) + 'px';
+    tooltipSpan.style.left = (x + 14) + 'px';
+};
+
+function test(stateCode){
+	var stateString=states[stateCode];
+	$.ajax({
+	  url: 'http://api.weatherstack.com/current',
+	  data: {
+	    access_key: '9d248d94d327bcb59e032e5136440b77',
+	    query: stateString,
+		units: 'f'
+	  },
+	  dataType: 'json',
+	  success: function(apiResponse) {
+	  	jQuery("#stateTitle").html("weather in "+stateString);
+		jQuery("#weatherReport").html("Current Temperature in "+apiResponse.location.name+" is "+apiResponse.current.temperature+" ℉");
+		jQuery("#weatherReportfore").html("Current Wind Speed in "+apiResponse.location.name+" is "+apiResponse.current.wind_speed + " mi");
+		jQuery("#weatherReporthumidity").html("Current Humidity in "+apiResponse.location.name+" is "+apiResponse.current.humidity+ " %");
+	  	jQuery("#modalBtn").click();
+	  }
+	});
+}
+$(document).ready(function() {
+	$('#map').usmap({
+		stateStyles: {fill: '#48c6d4','font-weight':'round'},
+		stateHoverStyles: {fill: 'lightgreen'}
+	});
+	$('#map').on('usmapclick', function(event, data) {
+	  console.log('You clicked on the state of '+data.name);
+	  //showState(event,data.name);
+	  test(data.name);
+	  //console.log("The state string is "+states[data.name]);
+	});
+	$('#map').on('usmapmouseover', function(event, data) {
+	  showState(event,data.name);
+	});
+	$('#map').on('usmapmouseout', function(event, data) {
+	  tooltipSpan.style.display="none";
+	});
+});
+var states={
+    "AL": "Alabama",
+    "AK": "Alaska",
+    "AS": "American Samoa",
+    "AZ": "Arizona",
+    "AR": "Arkansas",
+    "CA": "California",
+    "CO": "Colorado",
+    "CT": "Connecticut",
+    "DE": "Delaware",
+    "DC": "District Of Columbia",
+    "FM": "Federated States Of Micronesia",
+    "FL": "Florida",
+    "GA": "Georgia",
+    "GU": "Guam",
+    "HI": "Hawaii",
+    "ID": "Idaho",
+    "IL": "Illinois",
+    "IN": "Indiana",
+    "IA": "Iowa",
+    "KS": "Kansas",
+    "KY": "Kentucky",
+    "LA": "Louisiana",
+    "ME": "Maine",
+    "MH": "Marshall Islands",
+    "MD": "Maryland",
+    "MA": "Massachusetts",
+    "MI": "Michigan",
+    "MN": "Minnesota",
+    "MS": "Mississippi",
+    "MO": "Missouri",
+    "MT": "Montana",
+    "NE": "Nebraska",
+    "NV": "Nevada",
+    "NH": "New Hampshire",
+    "NJ": "New Jersey",
+    "NM": "New Mexico",
+    "NY": "New York",
+    "NC": "North Carolina",
+    "ND": "North Dakota",
+    "MP": "Northern Mariana Islands",
+    "OH": "Ohio",
+    "OK": "Oklahoma",
+    "OR": "Oregon",
+    "PW": "Palau",
+    "PA": "Pennsylvania",
+    "PR": "Puerto Rico",
+    "RI": "Rhode Island",
+    "SC": "South Carolina",
+    "SD": "South Dakota",
+    "TN": "Tennessee",
+    "TX": "Texas",
+    "UT": "Utah",
+    "VT": "Vermont",
+    "VI": "Virgin Islands",
+    "VA": "Virginia",
+    "WA": "Washington",
+    "WV": "West Virginia",
+    "WI": "Wisconsin",
+    "WY": "Wyoming"
+};
+
+</script>
+
+
+</body>
+</html> 
